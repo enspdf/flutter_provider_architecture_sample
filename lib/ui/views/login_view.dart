@@ -1,13 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_provider_architecture/core/models/post.dart';
+import 'package:flutter_provider_architecture/core/enums/view_state.dart';
+import 'package:flutter_provider_architecture/core/viewmodels/login_model.dart';
+import 'package:flutter_provider_architecture/ui/shared/app_colors.dart';
+import 'package:flutter_provider_architecture/ui/views/base_view.dart';
+import 'package:flutter_provider_architecture/ui/widgets/login_header.dart';
 
-class LoginView extends StatelessWidget {
-  final Post post;
+class LoginView extends StatefulWidget {
+  @override
+  _LoginViewState createState() => _LoginViewState();
+}
 
-  LoginView({this.post});
+class _LoginViewState extends State<LoginView> {
+  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return BaseView<LoginModel>(
+      builder: (context, model, child) => Scaffold(
+            backgroundColor: backgroundColor,
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                LoginHeader(
+                  validationMessage: model.errorMessage,
+                  controller: _controller,
+                ),
+                model.state == ViewState.Busy
+                    ? CircularProgressIndicator()
+                    : FlatButton(
+                        color: Colors.white,
+                        child: Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.black,
+                          ),
+                        ),
+                        onPressed: () async {
+                          var loginSuccess =
+                              await model.login(_controller.text);
+
+                          if (loginSuccess) {
+                            Navigator.pushNamed(context, '/');
+                          }
+                        },
+                      ),
+              ],
+            ),
+          ),
+    );
   }
 }
